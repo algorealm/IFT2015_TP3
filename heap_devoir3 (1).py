@@ -11,6 +11,7 @@ Prenom et nom :
 
 import math
 from io import StringIO
+from os import remove
 
 ## !!  Ne pas modifier !! ##
 '''
@@ -196,15 +197,15 @@ class Clinique():
                 if (self.data[j].age > 
                 self.data[self.biggestChild(j)].age):
                     return
+                temp = self.biggestChild(j)
                 self.swap(j, self.biggestChild(j))
-                j = self.biggestChild(j)
+                j = temp
                 
 
     #added         
     def biggestChild(self, j):
         if self.has_left(j) and self.has_right(j):
-            if (self.data[self.left(j)].age > 
-            self.data[self.right(j)].age):
+            if self.data[self.left(j)].age > self.data[self.right(j)].age:
                 return self.left(j)
             else:
                 return self.right(j)
@@ -240,8 +241,11 @@ class Clinique():
     sortie : NA
     '''
     def change_age(self,patient_id,new_age):
-        #TO DO
-        pass
+        j = self.find(patient_id)
+        #remove patient from tree
+        self.remove_element(j)
+        #add patient back with updated age
+        self.add(patient_id, new_age)
 
 
     '''
@@ -261,21 +265,13 @@ class Clinique():
     sortie : Un tableau qui contient les K elements maximum du Tas
     '''
     def top_k(self,k):
-        #quels noeuds on doit explorer pour les k maximums
-        total = 0
-        c = 0
-        while total < k:
-            total += 2**c; c+=1
-        if total - len(self.data) > 0:
-            total = len(self.data)
-        cands = list(range(0,total)); tab=[]
-        while len(tab) != k:
-            cand = cands[0]
-            for i in cands:
-                if self.data[cands[i]].age > self.data[cand].age: cand = i
-            cands.pop(i)
-            tab.append(self.data[cand])
+        tab = []
+        for i in range(k):
+            tab.append(self.remove_max())
+        for j in tab:
+            self.add(j.id, j.age)
         return tab
+
         
 
 
@@ -300,7 +296,9 @@ class Clinique():
         if self.is_empty():
             return False
         else:
-            return self.data[0]
+            temp = self.remove_element(0)
+            self.add(temp.id, temp.age)
+            return temp
 
 
     '''
@@ -312,9 +310,7 @@ class Clinique():
         if self.is_empty():
             return False
         else:
-            element = self.data[0]
-            self.downheap(0)
-            return element
+            return self.remove_element(0)
 
 #========================================================================================================================================================================================================
 ## !!  Ne pas modifier !! ##
