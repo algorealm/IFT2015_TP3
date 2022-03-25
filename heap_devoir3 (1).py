@@ -242,10 +242,11 @@ class Clinique():
     '''
     def change_age(self,patient_id,new_age):
         j = self.find(patient_id)
-        #remove patient from tree
-        self.remove_element(j)
-        #add patient back with updated age
-        self.add(patient_id, new_age)
+        #change age of the patient
+        self.data[j].change_age_patient(new_age)
+        #delete then, add patient back
+        patient = self.remove_element(j)
+        self.add(patient.id, patient.age)
 
 
     '''
