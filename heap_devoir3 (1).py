@@ -185,10 +185,6 @@ class Clinique():
     sortie : NA
     '''
     def downheap(self, j):
-        leaf = self.data.pop()
-        if self.is_empty():
-            return
-        self.data[j] = leaf
         while True:
             if self.biggestChild(j) == False:
                 #j is a leaf
@@ -242,12 +238,14 @@ class Clinique():
     '''
     def change_age(self,patient_id,new_age):
         j = self.find(patient_id)
+        #get old age 
+        old_age = self.data[j].age
         #change age of the patient
         self.data[j].change_age_patient(new_age)
-        #delete then, add patient back
-        patient = self.remove_element(j)
-        self.add(patient.id, patient.age)
-
+        if old_age > new_age:
+            self.downheap(j)
+        else:
+            self.upheap(j)
 
     '''
     retire et retourne l'element du Tas qui se trouve a l'indice recu en parametre
@@ -255,8 +253,17 @@ class Clinique():
     sortie : Une instance de la classe Patient (l'element qui a ete retire)
     '''
     def remove_element(self,indice):
+        if len(self.data)==1:
+            temp = self.data[0]
+            self.data=[]
+            return temp
+        #get element to remove
         element = self.data[indice]
+        #becomes a leaf
+        self.data[indice] = self.data.pop()
+        #bubbledown
         self.downheap(indice)
+        #return removed element
         return element
 
 
@@ -266,15 +273,14 @@ class Clinique():
     sortie : Un tableau qui contient les K elements maximum du Tas
     '''
     def top_k(self,k):
-        tab = []
-        for i in range(k):
-            tab.append(self.remove_max())
-        for j in tab:
-            self.add(j.id, j.age)
-        return tab
+        tab= []
+        while self.is_empty() == False:
+            tab.append(self.remove_element(0))
+        for i in tab:
+            self.add(i.id, i.age)
+        return tab[0:k]
 
         
-
 
     '''
     retire et retourne les K elements maximum du Tas (avec les plus grande priorite)
@@ -297,9 +303,7 @@ class Clinique():
         if self.is_empty():
             return False
         else:
-            temp = self.remove_element(0)
-            self.add(temp.id, temp.age)
-            return temp
+            return self.data[0]
 
 
     '''
