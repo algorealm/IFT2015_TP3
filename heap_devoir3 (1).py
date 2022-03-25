@@ -143,7 +143,7 @@ class Clinique():
 
     '''
 
-
+#========================================================================================================================================================================================================
 
     '''
     Cette methode permet d'ajouter un patient dans le Tas
@@ -152,10 +152,11 @@ class Clinique():
         age : age du patient que l'on souhaite ajouter (entier)
     sortie : NA
     '''
-    def add(self, id,age):
-        #TO DO
-        pass
-
+    def add(self, id, age):
+        patient = Patient(id, age)
+        self.data.append(patient)
+        self.upheap(len(self.data)-1)
+        
 
     '''
     Cette methode permet, apres l'ajout d'un element, de conserver les propriete de l'ordre du Tas
@@ -163,8 +164,18 @@ class Clinique():
     sortie : NA
     '''
     def upheap(self, j):
-        #TO DO
-        pass
+        #j is root node
+        if j == 0:
+            return
+        #get parent
+        par = self.parent(j)
+        #nage vers le haut recursivement
+        if self.data[par].age < self.data[j].age:
+            self.swap(par, j)
+            self.upheap(par)
+        else:
+            return
+
 
 
     '''
@@ -173,9 +184,38 @@ class Clinique():
     sortie : NA
     '''
     def downheap(self, j):
-        #TO DO
-        pass
+        leaf = self.data.pop()
+        if self.is_empty():
+            return
+        self.data[j] = leaf
+        while True:
+            if self.biggestChild(j) == False:
+                #j is a leaf
+                return
+            else:
+                if (self.data[j].age > 
+                self.data[self.biggestChild(j)].age):
+                    return
+                self.swap(j, self.biggestChild(j))
+                j = self.biggestChild(j)
+                
 
+    #added         
+    def biggestChild(self, j):
+        if self.has_left(j) and self.has_right(j):
+            if (self.data[self.left(j)].age > 
+            self.data[self.right(j)].age):
+                return self.left(j)
+            else:
+                return self.right(j)
+        elif self.has_left(j):
+            return self.left(j)
+        elif self.has_right(j):
+            return self.right(j)
+        else:
+            return False
+
+            
     '''
     retourne la position dans le tableau de l'element ayant l'id recu en parametre
     parametre :
@@ -183,8 +223,12 @@ class Clinique():
     sortie : entier (retourne -1 si aucun element n'a ete trouve)
     '''
     def find(self,id):
-        #TO DO
-        pass
+        c=0
+        for i in self.data:
+            if i.id == id:
+                return c
+            c+=1
+        return -1
 
 
     '''
@@ -206,8 +250,9 @@ class Clinique():
     sortie : Une instance de la classe Patient (l'element qui a ete retire)
     '''
     def remove_element(self,indice):
-        #TO DO
-        pass
+        element = self.data[indice]
+        self.downheap(indice)
+        return element
 
 
     '''
@@ -216,8 +261,23 @@ class Clinique():
     sortie : Un tableau qui contient les K elements maximum du Tas
     '''
     def top_k(self,k):
-        #TO DO
-        pass
+        #quels noeuds on doit explorer pour les k maximums
+        total = 0
+        c = 0
+        while total < k:
+            total += 2**c; c+=1
+        if total - len(self.data) > 0:
+            total = len(self.data)
+        cands = list(range(0,total)); tab=[]
+        while len(tab) != k:
+            cand = cands[0]
+            for i in cands:
+                if self.data[cands[i]].age > self.data[cand].age: cand = i
+            cands.pop(i)
+            tab.append(self.data[cand])
+        return tab
+        
+
 
     '''
     retire et retourne les K elements maximum du Tas (avec les plus grande priorite)
@@ -225,8 +285,10 @@ class Clinique():
     sortie : Un tableau qui contient les K elements maximum du Tas
     '''
     def pop_k(self,k):
-        #TO DO
-        pass
+        tab = []
+        for i in range(k):
+            tab.append(self.remove_max())
+        return tab
 
 
     '''
@@ -235,8 +297,10 @@ class Clinique():
     sortie : Une instance de la classe Patient. (l'element max du Tas qui a ete retire)
     '''
     def max(self):
-        #TO DO
-        pass
+        if self.is_empty():
+            return False
+        else:
+            return self.data[0]
 
 
     '''
@@ -245,9 +309,14 @@ class Clinique():
     sortie : Une instance de la classe Patient. (l'element qui a ete retire du Tas)
     '''
     def remove_max(self):
-        #TO DO
-        pass
+        if self.is_empty():
+            return False
+        else:
+            element = self.data[0]
+            self.downheap(0)
+            return element
 
+#========================================================================================================================================================================================================
 ## !!  Ne pas modifier !! ##
 '''
 Cette fonction permet d'afficher le Tas
